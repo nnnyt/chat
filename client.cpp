@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+ #include <stdarg.h>
 
 #define BUF_SIZE 1024
 

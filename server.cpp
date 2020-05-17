@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unordered_map>
+ #include <stdarg.h>
 
 #define SERVER_PORT 5208 //侦听端口
 #define BUF_SIZE 1024
