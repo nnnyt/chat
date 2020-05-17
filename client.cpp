@@ -49,10 +49,13 @@ int main(int argc,const char **argv,const char **envp){
     if (connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr))==-1){
         error_handling("connect() failed!");
     }
+    // 向服务器发送自己的名字
+    std::string my_name = "#new client:" + std::string(argv[3]);
+    send(sock, my_name.c_str(), my_name.length() + 1, 0);
     
     // 生成发送、接受消息的线程
-    std::thread snd(send_msg,sock);
-    std::thread rcv(recv_msg,sock);
+    std::thread snd(send_msg, sock);
+    std::thread rcv(recv_msg, sock);
     
     snd.join();
     rcv.join();
