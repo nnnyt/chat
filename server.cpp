@@ -27,8 +27,6 @@ int main(int argc,const char **argv,const char **envp){
     int serv_sock,clnt_sock;
     struct sockaddr_in serv_addr, clnt_addr;
     socklen_t clnt_addr_size;
-    printf("the server is running on port %d\n", SERVER_PORT);
-
 
     // 创建套接字，参数说明：
     //   AF_INET: 使用 IPv4
@@ -53,7 +51,7 @@ int main(int argc,const char **argv,const char **envp){
     if (bind(serv_sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) == -1){
         error_handling("bind() failed!");
     }
-
+    printf("the server is running on port %d\n", SERVER_PORT);
     // 使得 serv_sock 套接字进入监听状态，开始等待客户端发起请求
     if (listen(serv_sock, MAX_CLNT) == -1){
         error_handling("listen() error!");
@@ -85,6 +83,7 @@ int main(int argc,const char **argv,const char **envp){
 
 void handle_clnt(int clnt_sock){
     char msg[BUF_SIZE];
+    int flag = 0;
 
     // 第一次广播自己的名字时的前缀
     char tell_name[13] = "#new client:";
@@ -100,29 +99,46 @@ void handle_clnt(int clnt_sock){
                 // 此消息声明client名字
                 char name[20];
                 std::strcpy(name, msg+12);
-                output("the name of socket %d: %s\n", clnt_sock, name);
-                clnt_socks[name] = clnt_sock;
+                if(clnt_socks.find(name) == clnt_socks.end()){
+                    output("the name of socket %d: %s\n", clnt_sock, name);
+                    clnt_socks[name] = clnt_sock;
+                }
+                else {
+                    // 客户端名字重复
+                    std::string error_msg = std::string(name) + " exists already. Please quit and enter with another name!";
+                    send(clnt_sock, error_msg.c_str(), error_msg.length()+1, 0);
+                    mtx.lock();
+                    clnt_cnt--;
+                    mtx.unlock();
+                    flag = 1;
+                }
             }
         }
 
-        send_msg(std::string(msg));
+        if(flag == 0)
+            send_msg(std::string(msg));
     }
-    // 客户端关闭连接，从clnt_socks中删除此客户端
-    std::string leave_msg;
-    std::string name;
-    mtx.lock();
-    for (auto it = clnt_socks.begin(); it != clnt_socks.end(); ++it ){
-        if(it->second == clnt_sock){
-            name = it->first;
-            clnt_socks.erase(it->first);
+    if(flag == 0){
+        // 客户端关闭连接，从clnt_socks中删除此客户端
+        std::string leave_msg;
+        std::string name;
+        mtx.lock();
+        for (auto it = clnt_socks.begin(); it != clnt_socks.end(); ++it ){
+            if(it->second == clnt_sock){
+                name = it->first;
+                clnt_socks.erase(it->first);
+            }
         }
+        clnt_cnt--;
+        mtx.unlock();
+        leave_msg = "client " + name + " leaves the chat room";
+        send_msg(leave_msg);
+        output("client %s leaves the chat room\n", name.c_str());
+        close(clnt_sock);
     }
-    clnt_cnt--;
-    mtx.unlock();
-    leave_msg = "client " + name + " leaves the chat room";
-    send_msg(leave_msg);
-    output("client %s leaves the chat room\n", name.c_str());
-    close(clnt_sock);
+    else {
+        close(clnt_sock);
+    }
 }
 
 void send_msg(const std::string &msg){
