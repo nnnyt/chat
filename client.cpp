@@ -10,6 +10,8 @@
  #include <stdarg.h>
 
 #define BUF_SIZE 1024
+#define SERVER_PORT 5208 //侦听端口
+#define IP "127.0.0.1"
 
 void send_msg(int sock);
 void recv_msg(int sock);
@@ -25,13 +27,13 @@ int main(int argc,const char **argv,const char **envp){
     // sockaddr_in serv_addr{};
     struct sockaddr_in serv_addr;
 
-    if (argc!=4){
-        error_output("Usage : %s <IP> <Port> <Name> \n",argv[0]);
+    if (argc!=2){
+        error_output("Usage : %s <Name> \n",argv[0]);
         exit(1);
     }
 
     // 客户端名称
-    name="["+std::string(argv[3])+"]";
+    name="["+std::string(argv[1])+"]";
 
     // sock=socket(PF_INET, SOCK_STREAM, 0);
     // 创建Socket,使用TCP协议
@@ -43,15 +45,15 @@ int main(int argc,const char **argv,const char **envp){
     // 将套接字和指定的 IP、端口绑定
     memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = inet_addr(argv[1]);
-    serv_addr.sin_port = htons(atoi(argv[2]));
+    serv_addr.sin_addr.s_addr = inet_addr(IP);
+    serv_addr.sin_port = htons(SERVER_PORT);
     
     //连接服务器
     if (connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr))==-1){
         error_handling("connect() failed!");
     }
     // 向服务器发送自己的名字
-    std::string my_name = "#new client:" + std::string(argv[3]);
+    std::string my_name = "#new client:" + std::string(argv[1]);
     send(sock, my_name.c_str(), my_name.length() + 1, 0);
     
     // 生成发送、接受消息的线程
