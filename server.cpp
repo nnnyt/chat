@@ -19,7 +19,7 @@ int output(const char *arg,...);
 int error_output(const char *arg,...);
 void error_handling(const std::string &message);
 
-int clnt_cnt=0;
+int clnt_cnt = 0;
 std::mutex mtx;
 // 用unordered_map存储每个client的名字和socket
 std::unordered_map<std::string, int>clnt_socks;
@@ -61,7 +61,7 @@ int main(int argc,const char **argv,const char **envp){
     while(1){   // 循环监听客户端，永远不停止
         clnt_addr_size = sizeof(clnt_addr);
         // 当没有客户端连接时， accept() 会阻塞程序执行，直到有客户端连接进来
-        clnt_sock=accept(serv_sock, (struct sockaddr*)&clnt_addr, &clnt_addr_size);
+        clnt_sock = accept(serv_sock, (struct sockaddr*)&clnt_addr, &clnt_addr_size);
         if (clnt_sock == -1){
             error_handling("accept() failed!");
         }
@@ -76,7 +76,6 @@ int main(int argc,const char **argv,const char **envp){
         th.detach();
 
         output("Connected client IP: %s \n", inet_ntoa(clnt_addr.sin_addr));
-
     }
     close(serv_sock);
     return 0;
@@ -88,7 +87,6 @@ void handle_clnt(int clnt_sock){
 
     // 第一次广播自己的名字时的前缀
     char tell_name[13] = "#new client:";
-
     while(recv(clnt_sock, msg, sizeof(msg),0) != 0){
         // 检查是否为第一次进入聊天室时的广播
         if (std::strlen(msg) > std::strlen(tell_name)) {

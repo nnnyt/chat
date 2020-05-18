@@ -3,7 +3,7 @@ project(chat)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(chat_server server.cpp)
-add_executable(chat_client client.cpp)
-target_link_libraries(chat_server pthread)
-target_link_libraries(chat_client pthread)
+add_executable(server server.cpp)
+add_executable(client client.cpp)
+target_link_libraries(server pthread)
+target_link_libraries(client pthread)

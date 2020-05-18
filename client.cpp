@@ -19,7 +19,7 @@ int output(const char *arg,...);
 int error_output(const char *arg,...);
 void error_handling(const std::string &message);
 
-std::string name="DEFAULT";
+std::string name = "DEFAULT";
 std::string msg;
 
 int main(int argc,const char **argv,const char **envp){
@@ -27,13 +27,13 @@ int main(int argc,const char **argv,const char **envp){
     // sockaddr_in serv_addr{};
     struct sockaddr_in serv_addr;
 
-    if (argc!=2){
+    if (argc != 2){
         error_output("Usage : %s <Name> \n",argv[0]);
         exit(1);
     }
 
     // 客户端名称
-    name="["+std::string(argv[1])+"]";
+    name = "["+std::string(argv[1])+"]";
 
     // sock=socket(PF_INET, SOCK_STREAM, 0);
     // 创建Socket,使用TCP协议
@@ -49,7 +49,7 @@ int main(int argc,const char **argv,const char **envp){
     serv_addr.sin_port = htons(SERVER_PORT);
     
     //连接服务器
-    if (connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr))==-1){
+    if (connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) == -1){
         error_handling("connect() failed!");
     }
     // 向服务器发送自己的名字
@@ -96,7 +96,7 @@ int output(const char *arg, ...){
     int res;
     va_list ap;
     va_start(ap, arg);
-    res=vfprintf(stdout, arg, ap);
+    res = vfprintf(stdout, arg, ap);
     va_end(ap);
     return res;
 }
@@ -105,7 +105,7 @@ int error_output(const char *arg, ...){
     int res;
     va_list ap;
     va_start(ap, arg);
-    res=vfprintf(stderr, arg, ap);
+    res = vfprintf(stderr, arg, ap);
     va_end(ap);
     return res;
 }
